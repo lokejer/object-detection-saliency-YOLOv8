@@ -1,0 +1,64 @@
+# Environment
+.env
+.env.*
+
+# Agents
+claude.md
+agents.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Distribution / build
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# ML models (large binary files — distribute separately)
+models/
+
+# TensorFlow / Keras cache
+.keras/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temp files
+tempCodeRunnerFile.*
+
+
+# Misc
+prev_iter/
+*.pt

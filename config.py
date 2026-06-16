@@ -20,7 +20,7 @@ BRIGHTNESS_MAX     = 200
 CONF_DEFAULT       = 60      # default slider position (%)
 CONF_HYSTERESIS_GAP = 0.25   # conf_low = conf_high - this; prevents on/off flicker
 
-BLUR_KERNEL        = (5, 5)  # gaussian kernel for pre-inference denoising; increase for grainier cameras
+BLUR_KERNEL        = (2, 2)  # gaussian kernel for pre-inference denoising; increase for grainier cameras
 LABEL_HISTORY_LEN  = 10      # rolling window of past labels used for majority-vote stabilisation
 
 BOX_COLOR = (0, 255, 0)      # BGR green for bounding boxes

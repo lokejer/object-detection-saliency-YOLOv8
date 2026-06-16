@@ -1,4 +1,4 @@
-# cifar-cv
+# Real-time CV with YOLOv8
 
 A learning-oriented computer vision repo built to explore real-time object detection
 on a local GPU, using YOLOv8, ByteTrack, and OpenCV.

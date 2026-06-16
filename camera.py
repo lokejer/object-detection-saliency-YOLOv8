@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import torch
 
@@ -33,6 +35,11 @@ if __name__ == "__main__":
     cv2.createTrackbar(config.TRACKBAR_BRIGHTNESS, config.WINDOW_NAME, config.BRIGHTNESS_CENTER, config.BRIGHTNESS_MAX, lambda _: None)
     cv2.createTrackbar(config.TRACKBAR_CONFIDENCE, config.WINDOW_NAME, config.CONF_DEFAULT, 100, lambda _: None)
 
+    # fps state: smoothed reading + timestamp of the previous loop iteration
+    # perf_counter is a high-resolution monotonic clock — ideal for measuring short durations
+    fps = 0.0
+    prev_time = time.perf_counter()
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -56,8 +63,16 @@ if __name__ == "__main__":
 
         detections = detector.track(frame, conf_high)
 
+        # measure the full loop time (capture + preprocess + inference + draw) for a true
+        # end-to-end throughput number, then smooth it with an exponential moving average
+        # so the readout does not jitter every frame
+        now = time.perf_counter()
+        instant_fps = 1.0 / max(now - prev_time, 1e-6)  # guard against divide-by-zero
+        fps = config.FPS_SMOOTHING * instant_fps + (1 - config.FPS_SMOOTHING) * fps
+        prev_time = now
+
         draw_detections(frame, detections)
-        draw_hud(frame, brightness_val, conf_high, device)
+        draw_hud(frame, brightness_val, conf_high, device, fps)
 
         # imshow renders the updated frame; waitKey(1) gives it 1ms to process events
         # 0xFF mask ensures the key code fits in 8 bits across platforms

@@ -15,7 +15,7 @@ def draw_detections(frame, detections: list[Detection]) -> None:
         cv2.putText(frame, text, (det.x1, det.y1 - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.6, config.BOX_COLOR, 2)
 
 
-def draw_hud(frame, brightness_val: int, conf_high: float, device: str) -> None:
+def draw_hud(frame, brightness_val: int, conf_high: float, device: str, fps: float) -> None:
     h, w = frame.shape[:2]
     bar_height = 36
 
@@ -30,8 +30,10 @@ def draw_hud(frame, brightness_val: int, conf_high: float, device: str) -> None:
 
     brightness_label = f"Brightness: {offset:+d}"
     confidence_label = f"Confidence: {conf_high:.0%} (low: {conf_low:.0%})"
+    fps_label        = f"FPS: {fps:4.1f}"
     device_label     = f"Device: {device}"
 
     cv2.putText(frame, brightness_label, (12, h - 12),      cv2.FONT_HERSHEY_SIMPLEX, 0.55, config.HUD_COLOR, 1)
     cv2.putText(frame, confidence_label, (220, h - 12),     cv2.FONT_HERSHEY_SIMPLEX, 0.55, config.HUD_COLOR, 1)
+    cv2.putText(frame, fps_label,        (w - 290, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.55, config.HUD_COLOR, 1)
     cv2.putText(frame, device_label,     (w - 160, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.55, config.HUD_COLOR, 1)

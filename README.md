@@ -2,7 +2,7 @@
 
 Exploring real-time object segmentation and tracking (via pre-trained HF model) on a local GPU, using YOLOv8, ByteTrack, and OpenCV.
 
-<img width="901" height="702" alt="YOLOv8 demo" src="https://github.com/user-attachments/assets/5c4125c7-6f30-4366-adc9-7f01e6cd407c" />
+<img width="540" height="360" alt="v2 YOLOv8 demo" src="https://github.com/user-attachments/assets/6258e14b-26c0-4571-9f5f-ba741175817b" />
 
 ---
 
@@ -144,5 +144,4 @@ throughput number — useful for benchmarking model variants on your GPU.
 - Swap `yolov8l.pt` for `yolov8x.pt` for maximum accuracy, or `yolov8n.pt` for speed testing,
   and read the steady-state FPS off the HUD to compare.
 - Adjust `CONF_HYSTERESIS_GAP` or `LABEL_HISTORY_LEN` in `config.py` to tune stability vs. responsiveness.
-- Tune `FPS_SMOOTHING` in `config.py` for a smoother (lower) or more responsive (higher) FPS readout.<img width="901" height="702" alt="YOLOv8 demo" src="https://github.com/user-attachments/assets/569afed3-9703-4424-89f0-4c744a6a6403" />
-<img width="901" height="702" alt="YOLOv8 demo" src="https://github.com/user-attachments/assets/c923a853-9e36-4133-ac0e-6b1f3b1b27f3" />
+- Tune `FPS_SMOOTHING` in `config.py` for a smoother (lower) or more responsive (higher) FPS readout.

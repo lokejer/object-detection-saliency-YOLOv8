@@ -1,7 +1,8 @@
 # Real-time CV with YOLOv8
 
-A learning-oriented computer vision repo built to explore real-time object detection
-on a local GPU, using YOLOv8, ByteTrack, and OpenCV.
+Exploring real-time object segmentation and tracking (via pre-trained HF model) on a local GPU, using YOLOv8, ByteTrack, and OpenCV.
+
+<img width="901" height="702" alt="YOLOv8 demo" src="https://github.com/user-attachments/assets/5c4125c7-6f30-4366-adc9-7f01e6cd407c" />
 
 ---
 
@@ -20,11 +21,11 @@ on a local GPU, using YOLOv8, ByteTrack, and OpenCV.
 ```
 cifar-cv/
 ├── camera.py            # entry point: device setup, capture loop, window/trackbar creation, cleanup
-├── config.py            # all constants and tunable values — one place to change settings
-├── detector.py          # Detector class + Detection dataclass; owns YOLO, ByteTrack, label voting
-├── display.py           # draw_detections() and draw_hud(); pure rendering, no model/camera deps
-├── yolov8n.pt           # yolo nano weights (auto-downloaded, fastest)
-└── yolov8l.pt           # yolo large weights (used by default)
+├── config.py            # all constants and tunable values → one place to change settings
+├── detector.py          # Detector class + Detection dataclass → instantiate YOLO, ByteTrack, label voting
+├── display.py           # draw_detections() and draw_hud() → pure rendering, no model/camera deps
+├── yolov8n.pt           # yolo nano weights (fastest but least accurate)
+└── yolov8l.pt           # yolo large weights (slower but most accurate)
 ```
 
 ---
@@ -53,7 +54,7 @@ pip install ultralytics opencv-python
 
 ---
 
-## Setup
+### Setup
 
 1. Clone or download this repo into your dev directory.
 2. Install PyTorch nightly (see above).
@@ -62,7 +63,7 @@ pip install ultralytics opencv-python
 
 ---
 
-## Key Commands
+### Key Commands
 
 ```bash
 # real-time yolov8 object detection
@@ -73,19 +74,18 @@ Press **Q** in the OpenCV window to quit.
 
 ---
 
-## Workflow Overview
+## Workflow
 
-The detection pipeline is split into four focused modules following the Single
-Responsibility Principle — each file does one thing.
+Each file focuses on one task.
 
-### `config.py` — constants and tunable values
+### `config.py` → constants and tunable values
 
 Single source of truth for every magic number: model path, camera index, capture resolution,
 window size, trackbar names, colours, blur kernel size, hysteresis gap, label history length,
 and the FPS smoothing factor. Change a setting once here; every other module reads from
 `config` instead of hardcoding values.
 
-### `detector.py` — `Detector` class + `Detection` dataclass
+### `detector.py` → `Detector` class + `Detection` dataclass
 
 Owns all stateful inference logic. `Detector.__init__()` loads the YOLO model and moves it
 to the target device. `Detector.track()` runs inference each frame and returns a list of
@@ -103,7 +103,7 @@ Key techniques inside `Detector`:
 - **Stale-track pruning** — ByteTrack IDs increase monotonically across a session, so retired
   IDs are removed from the state dicts each frame to prevent unbounded memory growth.
 
-### `display.py` — `draw_detections()` and `draw_hud()`
+### `display.py` → `draw_detections()` and `draw_hud()`
 
 Pure rendering functions with no model or camera dependencies. Accepts a frame and a list
 of `Detection` objects, draws bounding boxes and labels, and overlays the semi-transparent
@@ -111,7 +111,7 @@ HUD bar showing brightness offset, active/deactivate confidence thresholds, live
 compute device. Keeping rendering isolated makes it easy to swap the UI without touching
 inference logic.
 
-### `camera.py` — entry point
+### `camera.py` → entry point
 
 Thin orchestrator: resolves the compute device, instantiates `Detector`, opens `VideoCapture`,
 creates the named window and trackbars, then runs the main loop. Each iteration reads trackbar
@@ -128,11 +128,9 @@ throughput number — useful for benchmarking model variants on your GPU.
 
 ---
 
-## Concepts Covered
+## Tuning/Improvements Made
 
-- **Inference vs. training** — using pretrained weights without gradient updates
 - **YOLO + ByteTrack** — single-stage detection with persistent cross-frame object IDs
-- **BGR vs. RGB** — OpenCV's historical BGR ordering and when/why to convert
 - **Hysteresis thresholding** — two-threshold approach to eliminate oscillation artifacts
 - **Temporal voting** — stabilizing noisy per-frame predictions with a rolling majority vote
 - **Dataclass as typed contract** — structured output between inference and rendering layers
@@ -141,11 +139,10 @@ throughput number — useful for benchmarking model variants on your GPU.
 
 ---
 
-## Contributing
-
-This is a personal learning project. Feel free to fork and experiment. Suggested extensions:
+### Further Tuning/Improvements
 
 - Swap `yolov8l.pt` for `yolov8x.pt` for maximum accuracy, or `yolov8n.pt` for speed testing,
   and read the steady-state FPS off the HUD to compare.
 - Adjust `CONF_HYSTERESIS_GAP` or `LABEL_HISTORY_LEN` in `config.py` to tune stability vs. responsiveness.
-- Tune `FPS_SMOOTHING` in `config.py` for a smoother (lower) or more responsive (higher) FPS readout.
+- Tune `FPS_SMOOTHING` in `config.py` for a smoother (lower) or more responsive (higher) FPS readout.<img width="901" height="702" alt="YOLOv8 demo" src="https://github.com/user-attachments/assets/569afed3-9703-4424-89f0-4c744a6a6403" />
+<img width="901" height="702" alt="YOLOv8 demo" src="https://github.com/user-attachments/assets/c923a853-9e36-4133-ac0e-6b1f3b1b27f3" />

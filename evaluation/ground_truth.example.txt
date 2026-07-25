@@ -1,5 +1,0 @@
-# MOTChallenge-style ground truth (1-based frames, pixel coordinates).
-# Annotate only the evaluated objects. For the default experiment, annotate people only.
-# frame,id,x,y,width,height,confidence,class,visibility
-1,1,100,120,80,220,1,1,1
-2,1,102,120,80,220,1,1,1

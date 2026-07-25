@@ -22,10 +22,7 @@ The evaluation video contains 525 frames at 1920×1080 and 30 FPS. Its ground tr
 
 ![ByteTrack tracking people in the evaluation video](evaluation/bytetrack_preview.jpg)
 
-<video controls width="100%" poster="evaluation/bytetrack_preview.jpg">
-  <source src="evaluation/results/bytetrack.mp4" type="video/mp4">
-  Your Markdown viewer does not support embedded video. Open [the ByteTrack video](evaluation/results/bytetrack.mp4) directly.
-</video>
+[the ByteTrack video](evaluation/results/bytetrack.mp4)
 
 ## Results
 

@@ -103,6 +103,4 @@ feature direction, not causal pixel importance for an individual detection.
 ## Documentation
 
 - [`improvements.md`](improvements.md) — implementation history, design rationale, and open gaps
-- [`x.md`](x.md) — tracker experiment inputs, setup, metrics, and decision rule
 - [`bytetrack_vs_botsort.md`](bytetrack_vs_botsort.md) — recorded benchmark results and interpretation
-- [`README_orig.md`](README_orig.md) — preserved pre-consolidation README

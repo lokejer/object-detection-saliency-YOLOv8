@@ -1,10 +1,10 @@
-# ByteTrack vs BoT-SORT
+# ByteTrack vs BoT-SORT: A (not deep) dive
 
-This experiment compared ByteTrack and BoT-SORT on the same prerecorded video. Both runs used the same YOLOv8l detector, the same person-only class filter, and the same detection confidence threshold of `0.10`. This makes the tracker the main variable being compared.
+this experiment compared ByteTrack and BoT-SORT on the same prerecorded video. Both runs used the same YOLOv8l detector, the same person-only class filter, and the same detection confidence threshold of `0.10`. This makes the tracker the main variable being compared.
 
-The evaluation video contains 525 frames at 1920×1080 and 30 FPS. Its ground truth contains 5,325 pedestrian annotations across 26 person trajectories. Each tracker processed the complete 17.5-second video.
+the evaluation video contains 525 frames at 1920×1080 and 30 FPS. Its ground truth contains 5,325 pedestrian annotations across 26 person trajectories (stored in ground_truth.txt). Each tracker processed the complete 17.5-second video.
 
-**What has been achieved**
+**what has been achieved**
 
 → A person-only MOT17 video and matching ground-truth annotations were prepared.
 
@@ -18,13 +18,20 @@ The evaluation video contains 525 frames at 1920×1080 and 30 FPS. Its ground tr
 
 → Tracking quality, detection quality, identity consistency, errors, latency, and throughput were calculated automatically and written to a comparison DataFrame and CSV file.
 
-## ByteTrack output
+## ByteTrack output (static)
 
-![ByteTrack tracking people in the evaluation video](evaluation/bytetrack_preview.jpg)
+![full frame of ByteTrack tracking people in the evaluation video](../evaluation/bytetrack_preview.jpg)
 
-[the ByteTrack video](evaluation/results/bytetrack.mp4)
+![gallery of examples](../evaluation/bytetrack_evaluation_gallery.jpg)
 
-## Results
+
+## BoT-SORT output (video)
+
+![BoT-SORT tracking preview](../evaluation/bot-sort%20video%20demo.gif)
+
+Outputs from both algorithms have relatively unnoticeable differences outside of up-close frame-by-frame analysis.
+
+## final results
 
 | **Metric** | **ByteTrack** | **BoT-SORT** | **Better result** |
 |---|---:|---:|---|
@@ -43,7 +50,7 @@ The evaluation video contains 525 frames at 1920×1080 and 30 FPS. Its ground tr
 | P95 latency | 34.65 ms | 58.53 ms | ByteTrack |
 | Throughput | 32.16 FPS | 19.81 FPS | ByteTrack |
 
-## What the metrics mean
+## what on earth do these metrics mean
 
 → **HOTA** balances detection accuracy and identity association. A higher value means the tracker is better at both locating people and preserving their identities over time.
 
@@ -67,9 +74,9 @@ The evaluation video contains 525 frames at 1920×1080 and 30 FPS. Its ground tr
 
 → **Throughput** is the average number of frames processed per second. Higher throughput is better for live video.
 
-## Interpretation
+## interpretation
 
-BoT-SORT produced the stronger overall tracking-quality result. It achieved higher HOTA, DetA, AssA, IDF1, and MOTA scores. It also produced fewer false positives, fewer false negatives, and fewer fragmented tracks. Its largest quality advantage was a 3.36-point improvement in IDF1.
+BoT-SORT produced the stronger overall tracking-quality result. It achieved higher HOTA, DetA, AssA, IDF1, and MOTA scores. It also produced fewer false positives, fewer false negatives, and fewer fragmented tracks. Its largest quality advantage was a +3.36 improvement in IDF1.
 
 ByteTrack still produced two fewer ID switches. An ID-switch count describes individual switching events, while AssA and IDF1 measure identity quality across the full sequence. For that reason, BoT-SORT can have slightly more switches but still achieve better overall identity scores.
 
@@ -79,7 +86,7 @@ For a live 30 FPS laptop camera, ByteTrack is the more practical choice from thi
 
 BoT-SORT is the better choice when the modest improvement in tracking quality matters more than real-time speed. Its throughput of 19.81 FPS is suitable for offline processing, but it may lag or require frame dropping with a 30 FPS live stream on the tested hardware.
 
-## Important limitations
+## important limitations
 
 The results are a controlled comparison on one short, stationary-camera sequence. They show how the trackers behaved on this video and hardware, but they do not prove that one tracker will always be better.
 
@@ -89,7 +96,7 @@ This limitation affects both trackers under the same evaluation rules, so the re
 
 The timing measurement includes detection and tracking but excludes drawing labels and encoding the output video. It therefore compares model-processing speed rather than complete display or video-export speed.
 
-## Current conclusion
+## conclusion
 
 → Choose **ByteTrack** when maintaining approximately real-time performance on the laptop camera is the priority.
 

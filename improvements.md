@@ -91,6 +91,45 @@ fps is measured over the whole loop of capture, preprocess, inference, and draw,
 throughput. this makes it easy to benchmark, for example swapping yolov8l for yolov8n to see the real
 speed gain on the gpu. the smoothing stops the number jumping around every frame.
 
+## 12. live eigen-cam saliency overlay (xai phase 1)
+
+added a toggleable heatmap (press e) that shows which pixels the model is paying attention to,
+using eigen-cam from the pytorch-grad-cam library in a new explain.py module.
+
+detection tells you what the model found, but not why. a saliency map colours each region by how
+strongly it activates the network, so you can see at a glance whether the model is looking at the
+actual object or at background clutter. eigen-cam was chosen over grad-cam and d-rise because it
+needs no gradients and no target class, it just runs pca over one layer's activations. that makes
+it the only method cheap enough to overlay on a live feed (about 76 ms per frame on yolov8l, since
+it costs one extra forward pass). the overlay starts off and is drawn under the boxes and hud so
+they stay readable. this is the first step toward the trustworthy-ai direction: per-box
+explanations and uncertainty estimates can build on the same model-hook plumbing.
+
+## 13. fixed inverted saliency and made the overlay nearly free
+
+rebuilt the eigen-cam internals after live testing showed the heatmap lighting up the background
+instead of the person, and fps dropping hard in heatmap mode.
+
+three changes, each fixing a real observed problem:
+
+- reuse the tracker's own activations. the old version ran a second full forward pass just to read
+  one layer's activations, roughly doubling per-frame compute. a forward hook now grabs the
+  activations the tracker already produced, so the extra pass is gone entirely. as a bonus the
+  heatmap now explains the exact letterboxed image the tracker saw, not a separately squashed copy.
+- power iteration instead of full svd. the principal component only needs the single largest
+  direction, but np.linalg.svd computes all of them and cost about 45 ms per frame on this machine.
+  repeatedly multiplying a vector by the data pulls it toward the top component in a few cheap
+  steps, cutting the whole heatmap computation to about 4 ms. warm-starting from last frame's
+  answer makes it converge faster and keeps the map steady over time.
+- detection-guided sign correction. the sign of a principal component is mathematically arbitrary,
+  so the exact same analysis can come out hot-on-objects or hot-on-background. this was the real
+  cause of the inverted map, not the layer choice. both orientations are now scored against the
+  detected boxes and the one that lights up the objects wins, with a magnitude fallback when
+  nothing is detected.
+
+the pytorch-grad-cam library is no longer used by the live overlay, since it hard-wires the full
+svd and gives no control over the component's sign. it may return for phase 2 per-box methods.
+
 ---
 
 ## additional fixes
@@ -122,3 +161,8 @@ honest limitations still left in the current build.
   after it ends.
 - single camera and single thread. capture and inference run in one loop, so a slow model directly drops
   the capture frame rate. a capture thread would decouple them.
+- saliency is scene-wide only. eigen-cam explains the whole frame, not one detection. a per-box
+  explanation (grad-cam++ or d-rise on a frozen frame) would answer why this specific box exists.
+- no uncertainty estimate. confidence is a single score with no sense of how stable it is. running
+  the frame under small perturbations and measuring the wobble would give a per-box trust signal,
+  and the existing brightness and blur sliders could double as a live robustness probe.

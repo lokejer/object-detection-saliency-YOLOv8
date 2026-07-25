@@ -31,6 +31,8 @@ build/
 
 # ML models (large binary files — distribute separately)
 models/
+evaluation/*.mp4
+evaluation/results/
 
 # TensorFlow / Keras cache
 .keras/

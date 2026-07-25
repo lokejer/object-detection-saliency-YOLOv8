@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from collections import deque, Counter
 
-import torch
 from ultralytics import YOLO
 
 import config
@@ -25,13 +24,18 @@ class Detector:
         self.model = YOLO(model_path)
         self.model.to(device)
 
+        # lock the underlying network in inference mode so batchnorm and dropout
+        # behave deterministically for tracking and for any explainer sharing this model
+        self.model.model.eval()
+
         # per-track state keyed by ByteTrack integer ID (persistent across frames)
         self._label_history: dict[int, deque] = {}
         self._active_tracks: dict[int, bool] = {}
 
     def track(self, frame, conf_high: float) -> list[Detection]:
-        # conf_low is derived from conf_high using the fixed hysteresis gap in config
-        # this means only one slider is needed — the gap is a design decision, not a user setting
+        # HYSTERESIS THRESHOLDING
+        #   conf_low is derived from conf_high using the fixed hysteresis gap in config
+        #   only one slider needed on the HUD. The gap is a design decision, not a user setting
         conf_low = max(0.0, conf_high - config.CONF_HYSTERESIS_GAP)
 
         # model.track() activates ByteTrack: assigns persistent integer IDs to objects

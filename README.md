@@ -1,7 +1,6 @@
 # Real-time CV with YOLOv8
 
-Achieved persistent multi-object tracking with explainable AI in the form of saliency mapping via feature activation heatmap **and pixel importance (D-RISE) (WIP).
-Works on both pre-recorded video and local GPU.
+Achieved persistent multi-object tracking with explainable AI in the form of saliency mapping via feature activation heatmap **and pixel importance (D-RISE) (WIP). Works on both pre-recorded video and local GPU.
 
 
 #### live demo
@@ -12,8 +11,9 @@ Works on both pre-recorded video and local GPU.
      headline feature at a glance. a side-by-side (detection only | detection + heatmap)
      works even better. -->
 
-#### simplified [MOTChallenge Benchmark](https://arxiv.org/abs/2010.07548) demo
-[![ByteTrack tracking preview](evaluation/results/bytetrack.gif)](evaluation/results/bytetrack.mp4)
+#### simplified [MOTChallenge benchmark](https://arxiv.org/abs/2010.07548) demo
+
+![BoT-SORT tracking preview](evaluation/bot-sort%20video%20demo.gif)
 
 ---
 

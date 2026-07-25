@@ -1,8 +1,10 @@
 # Real-time CV with YOLOv8
 
-Exploring real-time object detection, persistent multi-object tracking, and explainable AI
-(XAI) on a local GPU, using YOLOv8, Ultralytics tracking, Eigen-CAM, and OpenCV.
+Achieved persistent multi-object tracking with explainable AI in the form of saliency mapping via feature activation heatmap **and pixel importance (D-RISE) (WIP).
+Works on both pre-recorded video and local GPU.
 
+
+#### live demo
 <img width="540" height="360" alt="v2 YOLOv8 demo" src="https://github.com/user-attachments/assets/6258e14b-26c0-4571-9f5f-ba741175817b" />
 
 <!-- suggested image: replace or pair the demo above with a screenshot of the XAI overlay
@@ -10,16 +12,20 @@ Exploring real-time object detection, persistent multi-object tracking, and expl
      headline feature at a glance. a side-by-side (detection only | detection + heatmap)
      works even better. -->
 
+#### simplified [MOTChallenge Benchmark](https://arxiv.org/abs/2010.07548) demo
+[![ByteTrack tracking preview](evaluation/results/bytetrack.gif)](evaluation/results/bytetrack.mp4)
+
 ---
 
 ## Tech Stack
 
-| Tool | Role |
+| tool | role |
 |---|---|
-| PyTorch (nightly, cu132) | Tensor ops, GPU inference |
-| Ultralytics YOLOv8 | Real-time object detection and persistent multi-object tracking |
-| OpenCV (`cv2`) | Webcam capture, frame rendering, trackbars, heatmap blending |
-| NumPy | Power iteration + PCA for the Eigen-CAM saliency map |
+| PyTorch (nightly, cu132) | tensor ops, GPU inference |
+| Ultralytics YOLOv8 | object detection, persistent multi-object tracking |
+| ByteTrack / BoT-SORT | multi-object tracking algorithms |
+| OpenCV (`cv2`) | webcam capture, frame rendering, drawing the HUD (trackbars, statistics), heatmap blending |
+| NumPy | compute PCA for the Eigen-CAM feature activation map |
 
 ---
 
@@ -40,51 +46,72 @@ YOLOv8-realtime-cv/
 
 ## Prerequisites
 
-- Python 3.13
-- NVIDIA GPU with CUDA support (project targets RTX 5060 Laptop, Blackwell CC 12.0)
-- A webcam (built-in or external)
+- python 3.13 (the version used by the current project environment)
+- built-in/external webcam for the live `camera.py` workflow
+- windows for the current DirectShow camera configuration; other operating systems must change `CAMERA_BACKEND` in `config.py`
+- an NVIDIA CUDA GPU for real-time GPU inference, or a CPU for slower fallback inference
+- if running `experiment.py`, a prerecorded video and MOTChallenge-format annotations
 
-### PyTorch — Blackwell / CUDA 13.2
+### pytorch — Blackwell / CUDA 13.2
 
-The RTX 5060 (Blackwell) requires PyTorch nightly with CUDA 13.2 support:
+my personal setup is a RTX 5060 Laptop GPU environment, using the PyTorch nightly CUDA 13.2 build:
 
 ```bash
-pip install --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu132
+python -m pip install --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu132
 ```
 
-> For older GPUs with stable CUDA support, use the standard install from https://pytorch.org/get-started/locally/
+> for CPU or GPUs supported by a stable PyTorch build, select the matching install command at https://pytorch.org/get-started/locally/
 
-### Other dependencies
+### other dependencies
 
 ```bash
-pip install ultralytics opencv-python
+# dependencies used by the live camera workflow
+python -m pip install ultralytics opencv-python numpy
+
+# additional dependencies used only by experiment.py
+python -m pip install -r requirements-experiment.txt
 ```
 
 ---
 
-### Setup
+## Setup
 
-1. Clone or download this repo into your dev directory.
-2. Install PyTorch nightly (see above).
-3. Install remaining dependencies.
-4. YOLOv8 weights (`yolov8l.pt` etc.) auto-download from Ultralytics on first run if not present.
+1. clone the repo, open a terminal in its root directory.
+2. create and instantiate a venv.
+3. install the appropriate PyTorch build and the project dependencies (shown above).
+4. keep `yolov8l.pt` in the repository root, or change `MODEL_PATH` in `config.py`; `yolov8n.pt` is also included for faster inference.
+5. for the tracker comparison, add `evaluation/stationary_webcam_eval.mp4` and complete `evaluation/ground_truth.txt` before running `experiment.py`.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
 ---
 
-### Key Commands
+### Cmds
 
 ```bash
-# real-time yolov8 object detection with optional XAI overlay
+# run live webcam detection and tracking with the optional Eigen-CAM overlay
 python camera.py
+
+# compare ByteTrack and BoT-SORT using the configured evaluation video
+python experiment.py
 ```
 
-Press **Q** in the OpenCV window to quit. Press **E** to toggle the Eigen-CAM saliency heatmap.
+press **Q** in the OpenCV window to quit. press **E** to toggle the class-agnostic Eigen-CAM feature activation heatmap.
 
 ---
 
-## Workflow
+## Understand The Workflow
 
-Each file focuses on one task.
+The main path is:
+* [camera.py (line 50)](C:/Users/lokej/OneDrive/Desktop/dev/YOLOv8-realtime-cv/camera.py:50) captures, mirrors, brightness-adjusts, and blurs each frame.
+* [detector.py (line 35)](C:/Users/lokej/OneDrive/Desktop/dev/YOLOv8-realtime-cv/detector.py:35) runs persistent YOLO tracking, then applies confidence hysteresis and temporal label voting.
+* When XAI is enabled, a forward hook captures an intermediate activation from the same inference pass.
+* [explain.py (line 57)](C:/Users/lokej/OneDrive/Desktop/dev/YOLOv8-realtime-cv/explain.py:57) reduces that activation to one Eigen-CAM map.
+* [display.py (line 18)](C:/Users/lokej/OneDrive/Desktop/dev/YOLOv8-realtime-cv/display.py:18) applies JET and blends it uniformly over the frame.
+experiment.py is a separate prerecorded-video workflow comparing ByteTrack and BoT-SORT; it does not evaluate the heatmap.
 
 ### `config.py` — constants and tunable values
 
